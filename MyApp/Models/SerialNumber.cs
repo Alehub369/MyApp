@@ -2,13 +2,12 @@
 
 namespace MyApp.Models
 {
-    public class Item
+    public class SerialNumber
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public double Price { get; set; }
-        public int? SerialNumberId { get; set; }
-        public SerialNumber? SerialNumber { get; set; }
+        public int? ItemId { get; set; }
+        [ForeignKey("ItemId")]
+        public Item? Item { get; set; }
     }
-
 }
