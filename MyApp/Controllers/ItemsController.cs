@@ -14,22 +14,25 @@ namespace MyApp.Controllers
             _context = context;
         }
 
+
         public async Task<IActionResult> Index()
         {
-            var item = await _context.Items.Include(s => s.SerialNumber)
+#pragma warning disable CS8620 // El argumento no se puede usar para el parámetro debido a las diferencias en la nulabilidad de los tipos de referencia.
+            var item = await _context.Items.Include(static s => s.SerialNumber)
                                             .Include(c => c.Category)
+                                            .Include(ic => ic.ItemClients)
+                                            .ThenInclude(c => c.Client)
                                             .ToListAsync();
+#pragma warning restore CS8620 // El argumento no se puede usar para el parámetro debido a las diferencias en la nulabilidad de los tipos de referencia.
             return View(item);
         }
 
         public IActionResult Create()
         {
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
-
             return View();
         }
         [HttpPost]
-
         public async Task<IActionResult> Create([Bind("Id, Name, Price, CategoryId")] Item item)
         {
             if (ModelState.IsValid)
@@ -38,7 +41,7 @@ namespace MyApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            return View();
+            return View(item);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -48,7 +51,6 @@ namespace MyApp.Controllers
             return View(item);
         }
         [HttpPost]
-
         public async Task<IActionResult> Edit(int id, [Bind("Id, Name, Price, CategoryId")] Item item)
         {
             if (ModelState.IsValid)
@@ -61,20 +63,20 @@ namespace MyApp.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await _context.Items.FirstOrDefaultAsync(x =>x.Id == id);
+            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
             return View(item);
         }
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var item = await _context.Items.FindAsync(id);
-            if(item != null)
+            if (item != null)
             {
                 _context.Items.Remove(item);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction("Index");
         }
-    }
 
+    }
 }
